@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BookHaven - Page Not Found</title>
+    <link rel="stylesheet" href="Styles/404.css">
+    <script src="Scripts/navigator.js"></script>
+</head>
+
+<body>
+<div class="error-page">
+
+    <nav class="navbar">
+        <div class="container navbar-container">
+            <a onclick="goToPage('main')" class="logo">
+                <div class="logo-icon">B</div>
+                BookHaven
+            </a>
+            <ul class="nav-links">
+                <li><a onclick="goToPage('main')" class="nav-link">Home</a></li>
+                <li><a onclick="goToPage('browser')" class="nav-link">Browse</a></li>
+                <li><a onclick="goToPage('contact')" class="nav-link">Contact</a></li>
+            </ul>
+        </div>
+    </nav>
+
+
+    <div class="error-content">
+        <div class="error-container fade-in">
+            <div class="error-icon">404</div>
+            <h1 class="error-title">Page Not Found</h1>
+            <p class="error-message">Oops! The page you're looking for seems to be missing from our library.</p>
+            <p class="error-suggestion">Perhaps you mistyped the URL or the page has been moved to a new location.</p>
+            <div class="error-actions">
+                <a onclick="goToPage('main')" class="btn btn-primary">Return to Homepage</a>
+                <a onclick="goToPage('browser')" class="btn btn-outline">Browse Books</a>
+            </div>
+            <div class="search-suggestion">
+                <p>Or try searching for what you need:</p>
+                <div class="search-box">
+                    <input type="text" placeholder="Search for books..." class="form-control">
+                    <button class="search-btn">Search</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+
+</html>

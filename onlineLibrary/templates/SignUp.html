@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BookHaven - Sign Up</title>
+  <link rel="stylesheet" href="Styles/Login-SignUp.css">
+  <script src="Scripts/navigator.js"></script>
+  <script src="Scripts/signup.js"></script>
+</head>
+
+<body>
+<div class="auth-page">
+
+  <nav class="navbar">
+    <div class="container navbar-container">
+      <a onclick="goToPage('main')" class="logo">
+        <div class="logo-icon">B</div>
+        BookHaven
+      </a>
+      <ul class="nav-links">
+        <li><a onclick="goToPage('main')" class="nav-link">Home</a></li>
+        <li><a onclick="goToPage('browser')" class="nav-link">Browse</a></li>
+        <li><a onclick="goToPage('contact')" class="nav-link">Contact</a></li>
+      </ul>
+    </div>
+  </nav>
+
+
+  <div class="auth-content">
+    <div class="auth-container fade-in">
+
+      <div id="signup-form" class="auth-form">
+        <h3 class="auth-title">Create Your Account</h3>
+        <form>
+          <div class="form-group">
+            <label for="signup-name" class="form-label">Full Name</label>
+            <input type="text" id="signup-name" class="form-control" placeholder="John Doe">
+          </div>
+          <div class="form-group">
+            <label for="signup-email" class="form-label">Email Address</label>
+            <input type="email" id="signup-email" class="form-control"
+                   placeholder="yourname@example.com">
+          </div>
+          <div class="form-group">
+            <label for="signup-password" class="form-label">Password</label>
+            <input type="password" id="signup-password" class="form-control" placeholder="New Password">
+            <div class="password-strength">
+              <div class="strength-meter">
+                <div class="strength-meter-fill"></div>
+              </div>
+              <div class="strength-text">Password strength: <span id="password-strength-text"></span>
+              </div>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="confirm-password" class="form-label">Confirm Password</label>
+            <input type="password" id="confirm-password" class="form-control" placeholder="Re-enter Password">
+          </div>
+
+
+          <div class="admin-checkbox">
+            <label for="admin-signup">
+              <input type="checkbox" id="admin-signup">
+              Register as an administrator
+            </label>
+
+
+            <div id="admin-security-container">
+              <label for="admin-security-code" class="form-label">Admin Security Code</label>
+              <input type="password" id="admin-security-code" class="form-control" placeholder="Enter security code">
+            </div>
+          </div>
+
+          <div class="remember-me">
+            <input type="checkbox" id="agree-terms">
+            <label for="agree-terms">I agree to the <a href="#">Terms of Service</a> and <a
+                    href="#">Privacy Policy</a></label>
+          </div>
+          <button type="submit" class="btn btn-primary btn-block">Create Account</button>
+        </form>
+
+        <div class="auth-divider">
+          <span>OR</span>
+        </div>
+
+        <div class="social-login">
+          <a href="#" class="social-btn">
+            <span class="social-icon">G</span>
+            Google
+          </a>
+          <a href="#" class="social-btn">
+            <span class="social-icon">f</span>
+            Facebook
+          </a>
+        </div>
+
+        <div class="auth-switch">
+          <p>Already have an account? <a href="Login-Signup.html">Log in</a></p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

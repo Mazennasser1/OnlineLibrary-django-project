@@ -1,0 +1,323 @@
+{% load static %}
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BookHaven - User Dashboard</title>
+    <link rel="stylesheet" href="{% static 'css/userDashboard.css' %}">
+    <script src="{%static 'js/navigator.js' %}"></script>
+</head>
+
+<body>
+
+    <<nav class="navbar">
+    <div class="container navbar-container">
+        <a href="{% url 'index' %}" class="logo">
+            <div class="logo-icon">B</div>
+            BookHaven
+        </a>
+
+        <div class="nav-center">
+            <div class="search-container">
+                <input type="text" class="search-input" placeholder="Search for books, authors, or genres...">
+                <button class="search-btn">Search</button>
+            </div>
+        </div>
+
+        <ul class="nav-links">
+            <li><a href="{% url 'index' %}" class="nav-link">Home</a></li>
+            <li><a href="{% url 'browse_books' %}" class="nav-link">Browse</a></li>
+            <li><a href="{%url 'user_dashboard'%}" class="nav-link">My Books</a></li>
+
+        </ul>
+        {% if user.is_authenticated %}
+            <div class="user-profile">
+                <div class="user-avatar" id="user-dropdown-toggle">
+                    {{ user.username|slice:":1"|upper }}{{ user.username|slice:"-1:"|upper }}
+                </div>
+                <div class="dropdown-menu" id="user-dropdown">
+                    <a href="{%url 'user_dashboard'%}" class="dropdown-item">My Profile</a>
+                    <div class="dropdown-divider"></div>
+                    <a href="{% url 'signout' %}" class="dropdown-item">Sign Out</a>
+                </div>
+            </div>
+        {% endif %}
+
+    </div>
+</nav>
+
+    <div class="user-dashboard">
+        <div class="container">
+            
+            <div class="user-header">
+                <div>
+                    <h1>Welcome Back, {{ username }}!</h1>
+                    <p class="user-welcome">Ready to continue your reading journey?</p>
+                </div>
+                <a href="{% url 'browse_books' %}" class="btn btn-primary">Explore New Books</a>
+            </div>
+
+            
+            <div class="user-stats">
+                <div class="stat-card borrowed">
+                    <div class="stat-title">Currently Borrowed</div>
+                    <div class="stat-value">{{ stats.current_borrowings }}</div>
+                    <div class="stat-change">{{ stats.due_this_week }} due this week</div>
+                </div>
+<!--                <div class="stat-card saved">-->
+<!--                    <div class="stat-title">Saved for Later</div>-->
+<!--                    <div class="stat-value">0</div>-->
+<!--                    <div class="stat-change">+0 this month</div>-->
+<!--                </div>-->
+                <div class="stat-card returned">
+                    <div class="stat-title">Books Read</div>
+                    <div class="stat-value">{{ stats.books_read }}</div>
+                    <div class="stat-change">+{{ stats.books_read_this_month }} this month</div>
+                </div>
+                <div class="stat-card due">
+                    <div class="stat-title">Next Due Date</div>
+                    <div class="stat-value">{{ stats.next_due_date|default:"None" }}</div>
+                    <div class="stat-change">{% if stats.days_until_due %}in {{ stats.days_until_due }} days{% else %}No books due{% endif %}</div>
+                </div>
+            </div>
+
+            
+            <div class="user-tabs">
+                <div class="user-tab active" data-tab="current-books">My Current Books</div>
+                <div class="user-tab" data-tab="recommendations">Recommendations</div>
+                <div class="user-tab" data-tab="history">Reading History</div>
+                <div class="user-tab" data-tab="profile">My Profile</div>
+            </div>
+
+            
+            <div class="user-content">
+                <div class="tab-content active" id="current-books">
+                    <h3 class="mb-3">Currently Borrowed Books</h3>
+
+                    <div class="table-responsive mb-3">
+                        <table class="user-table">
+                            <thead>
+                                <tr>
+                                    <th>Book</th>
+                                    <th>Borrowed Date</th>
+                                    <th>Due Date</th>
+<!--                                    <th>Reading Progress</th>-->
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="borrowed-books-list">
+
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+
+                <div class="tab-content" id="recommendations">
+                    <h3 class="mb-3">Recommended For You</h3>
+                    <p class="mb-3">Based on your reading history and preferences, we think you might enjoy these books:
+                    </p>
+
+                    <div class="book-grid"> </div>
+                </div>
+
+
+            <div class="tab-content" id="history">
+                <h3 class="mb-3">Your Reading History</h3>
+                <div class="table-responsive mb-3">
+                    <table class="user-table">
+                        <thead>
+                            <tr>
+                                <th>Book</th>
+                                <th>Borrowed Date</th>
+                                <th>Returned Date</th>
+                                <th>Rating</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Content will be loaded dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <h4 class="mb-2">Your Reviews</h4>
+                <div class="review-container"></div>
+            </div>
+
+
+                <div class="tab-content" id="profile">
+                    <h3 class="mb-3">My Profile</h3>
+
+                    <form id="profile-form" method="POST" action="{% url 'update_profile' %}">
+                        {% csrf_token %}
+                        <div class="form-row">
+                            <div class="form-col">
+                                <div class="form-group">
+                                    <label class="form-label">Username</label>
+                                    <input type="text" class="form-control" name="username" value="{{ request.user.username }}">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-col">
+                                <div class="form-group">
+                                    <label class="form-label">First Name</label>
+                                    <input type="text" class="form-control" name="first_name" value="{{ request.user.first_name }}">
+                                </div>
+                            </div>
+                            <div class="form-col">
+                                <div class="form-group">
+                                    <label class="form-label">Last Name</label>
+                                    <input type="text" class="form-control" name="last_name" value="{{ request.user.last_name }}">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Email</label>
+                            <input type="email" class="form-control" name="email" value="{{ request.user.email }}">
+                        </div>
+
+                        <div id="quote-box">
+                            <blockquote>“A reader lives a thousand lives before he dies.” – George R.R. Martin</blockquote>
+                        </div>
+
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    </div>
+
+    
+
+    <div class="modal-backdrop" id="book-modal">
+        <div class="modal">
+            <div class="modal-header">
+                <h4 class="modal-title" >Book Details</h4>
+                <button class="modal-close" id="close-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="book-detail">
+                    <div class="book-detail-cover">
+                        <img id="modal-book-cover" src="" alt="Book Cover">
+                    </div>
+                    <div class="book-detail-info">
+                        <h3 id="modal-book-title"></h3>
+                        <h5 class="mb-2" id="modal-book-authors"></h5>
+
+                        <div class="book-detail-meta">
+                            <div class="book-meta-item" id="bookCategory"></div>
+                            <div class="book-meta-item" id="bookPages"></div>
+                            <div class="book-meta-item" id="bookRating"></div>
+                        </div>
+
+                        <div class="book-description" id="modal-book-description">
+                        </div>
+
+                        <div class="progress-container">
+                            <div class="progress-bar" style="width: 75%;"></div>
+                        </div>
+                        <div class="progress-text mb-3">You're on page 240 of 320 (75%)</div>
+
+                    </div>
+                </div>
+
+<!--                <h4 class="suggestion-heading">You might also like</h4>-->
+<!--                <div class="suggestions">-->
+<!--                    {% for book in similar_books %} &lt;!&ndash; Assuming similar_books is passed from the backend &ndash;&gt;-->
+<!--                    <div class="suggestion-card">-->
+<!--                        <div class="suggestion-cover">-->
+<!--                            <img src="{{ book.cover_url }}" alt="Book Cover">-->
+<!--                        </div>-->
+<!--                        <div class="suggestion-title">{{ book.title }}</div>-->
+<!--                    </div>-->
+<!--                    {% endfor %}-->
+<!--                </div>-->
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="close-modal-btn">Close</button>
+            </div>
+        </div>
+    </div>
+    <div id="borrow-modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h3>Borrow Book</h3>
+            <form id="borrow-form">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="return-date">Return Date</label>
+                    <input type="date" id="return-date" name="return-date" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Confirm Borrow</button>
+            </form>
+        </div>
+        </div>
+
+
+    <style>
+        .modal {
+            display: none; /* Change from block to none */
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+
+        .modal.show {
+        display: block;
+        }
+
+        .modal-content {
+        background-color: #fefefe;
+        margin: 15% auto;
+        padding: 20px;
+        border: 1px solid #888;
+        width: 80%;
+        max-width: 500px;
+        border-radius: 8px;
+        }
+
+        .close {
+        color: #aaa;
+        float: right;
+        font-size: 28px;
+        font-weight: bold;
+        cursor: pointer;
+        }
+
+        .close:hover {
+        color: black;
+        }
+
+        .form-group {
+        margin-bottom: 15px;
+        }
+
+        .form-group label {
+        display: block;
+        margin-bottom: 5px;
+        }
+
+        .form-group input {
+        width: 100%;
+        padding: 8px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        }
+    </style>
+</body>
+<!-- Add this in the head section -->
+<script src="{% static 'js/userDashboard.js' %}"></script>
+{% csrf_token %}
+
+
+<!-- Add this right after the body tag -->
+
+</html>

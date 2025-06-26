@@ -1,0 +1,422 @@
+{% load static %}
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BookHaven - Book Details</title>
+    <link rel="stylesheet" href="{% static 'css/previewBook.css' %}">
+    <script src="{%static 'js/navigator.js' %}"></script>
+    <script src="{% static 'js/previewBook.js' %}"></script>
+</head>
+
+<body>
+
+<nav class="navbar">
+    <div class="container navbar-container">
+        <a href="{% url 'index' %}" class="logo">
+            <div class="logo-icon">B</div>
+            BookHaven
+        </a>
+
+        <div class="nav-center">
+            <div class="search-container">
+                <input type="text" class="search-input" placeholder="Search for books, authors, or genres...">
+                <button class="search-btn">Search</button>
+            </div>
+        </div>
+
+        <ul class="nav-links">
+            <li><a href="{% url 'index' %}" class="nav-link">Home</a></li>
+            <li><a href="{% url 'browse_books' %}" class="nav-link">Browse</a></li>
+            <li><a href="{%url 'user_dashboard'%}" class="nav-link">My Books</a></li>
+        </ul>
+        <div class="user-profile">
+            <div class="user-avatar" id="user-dropdown-toggle">
+                {{ user.username|slice:":1"|upper }}{{user.username|slice:"-1:"|upper }}
+            </div>
+            <div class="dropdown-menu" id="user-dropdown">
+                <a href="{%url 'user_dashboard'%}" class="dropdown-item">My Profile</a>
+                <a href="{%url 'user_dashboard'%}" class="dropdown-item">Account Settings</a>
+                <a href="{%url 'user_dashboard'%}" class="dropdown-item">Reading History</a>
+                <div class="dropdown-divider"></div>
+                <a href="{% url 'signout' %}" class="dropdown-item">Sign Out</a>
+            </div>
+        </div>
+    </div>
+</nav>
+
+
+<div class="container">
+
+    <ul class="breadcrumb">
+        <li><a href="#">Home</a></li>
+        <li><a href="#">Fiction</a></li>
+        <li><a href="#">The Silent Echo</a></li>
+    </ul>
+
+
+    <div class="book-details">
+        <div class="book-details-flex">
+            <img src="" alt="Book Cover" class="book-cover-large">
+            <div class="book-details-info">
+                <h1 class="book-title-large"></h1>
+                <p class="book-author-large"></p>
+                <div class="book-rating-large">
+                    <span class="stars-large"></span>
+                    <span></span>
+                </div>
+
+                <div class="book-meta">
+                    <!-- Categories and page count will be added here dynamically -->
+                </div>
+
+                <div class="action-buttons">
+                    <button class="btn btn-primary" id="borrow-btn">Borrow Book</button>
+                </div>
+
+                <!-- Add this modal HTML at the end of the body tag -->
+                <!-- Borrow Modal -->
+                <div id="borrow-modal" class="modal">
+                    <div class="modal-content">
+                        <span class="close">&times;</span>
+                        <h3>Borrow Book</h3>
+                        <form id="borrow-form">
+                            {% csrf_token %}
+                            <div class="form-group">
+                                <label for="return-date">Return Date</label>
+                                <input type="date" id="return-date" name="return-date" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Confirm Borrow</button>
+                        </form>
+                    </div>
+                </div>
+                <script>
+                    function handleBorrowClick() {
+                        console.log("Borrow button clicked");
+                        const modal = document.getElementById('borrow-modal');
+                        const closeBtn = modal.querySelector('.close');
+                        const form = document.getElementById('borrow-form');
+                        const returnDateInput = document.getElementById('return-date');
+
+                        // Set minimum date to tomorrow
+                        const tomorrow = new Date();
+                        tomorrow.setDate(tomorrow.getDate() + 1);
+                        returnDateInput.min = tomorrow.toISOString().split('T')[0];
+
+                        modal.classList.add('show');
+
+                        closeBtn.onclick = function () {
+                            modal.classList.remove('show');
+                        }
+
+                        window.onclick = function (event) {
+                            if (event.target === modal) {
+                                modal.classList.remove('show');
+                            }
+                        }
+
+                        form.onsubmit = async function (e) {
+                            e.preventDefault();
+                            const returnDate = returnDateInput.value;
+                            const bookId = new URLSearchParams(window.location.search).get('id');
+
+                            try {
+                                const response = await fetch('/api/admin/borrow/', {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/json',
+                                        'X-CSRFToken': getCsrfToken()
+                                    },
+                                    body: JSON.stringify({
+                                        book_id: bookId,
+                                        return_date: returnDate
+                                    })
+                                });
+
+                                if (!response.ok) {
+                                    throw new Error('Failed to borrow book');
+                                }
+
+                                const result = await response.json();
+                                alert('Book borrowed successfully!');
+                                modal.classList.remove('show');
+
+                                // Disable borrow button and refresh book details
+                                document.getElementById('borrow-btn').disabled = true;
+                                fetchBookDetails(bookId);
+                            } catch (error) {
+                                console.error('Error borrowing book:', error);
+                                alert('Failed to borrow book. Please try again.');
+                            }
+                        }
+                    }
+
+                    // Add this helper function if not already present
+                    function getCsrfToken() {
+                        const name = 'csrftoken';
+                        let cookieValue = null;
+                        if (document.cookie && document.cookie !== '') {
+                            const cookies = document.cookie.split(';');
+                            for (let i = 0; i < cookies.length; i++) {
+                                const cookie = cookies[i].trim();
+                                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                                    break;
+                                }
+                            }
+                        }
+                        return cookieValue;
+                    }
+
+                    // Add click event listener to borrow button
+                    document.addEventListener('DOMContentLoaded', function () {
+                        const borrowBtn = document.querySelector('.btn.btn-primary');
+                        if (borrowBtn) {
+                            borrowBtn.onclick = handleBorrowClick;
+                        }
+                    });
+
+                </script>
+                <style>
+                    .modal {
+                        display: none; /* Change from block to none */
+                        position: fixed;
+                        z-index: 1000;
+                        left: 0;
+                        top: 0;
+                        width: 100%;
+                        height: 100%;
+                        background-color: rgba(0, 0, 0, 0.5);
+                    }
+
+                    .modal.show {
+                        display: block;
+                    }
+
+                    .modal-content {
+                        background-color: #fefefe;
+                        margin: 15% auto;
+                        padding: 20px;
+                        border: 1px solid #888;
+                        width: 80%;
+                        max-width: 500px;
+                        border-radius: 8px;
+                    }
+
+                    .close {
+                        color: #aaa;
+                        float: right;
+                        font-size: 28px;
+                        font-weight: bold;
+                        cursor: pointer;
+                    }
+
+                    .close:hover {
+                        color: black;
+                    }
+
+                    .form-group {
+                        margin-bottom: 15px;
+                    }
+
+                    .form-group label {
+                        display: block;
+                        margin-bottom: 5px;
+                    }
+
+                    .form-group input {
+                        width: 100%;
+                        padding: 8px;
+                        border: 1px solid #ddd;
+                        border-radius: 4px;
+                    }
+                </style>
+
+                <p class="book-description"></p>
+            </div>
+        </div>
+
+        <div class="tabs">
+            <div class="tab active">Details</div>
+            <div class="tab">Reviews</div>
+            <div class="tab">Similar Books</div>
+        </div>
+
+        <div class="tab-content">
+            <table class="details-table">
+                <!-- Rows will be added dynamically -->
+            </table>
+
+            <h3 style="margin-top: 2rem;">Summary</h3>
+            <p class="book-summary"></p>
+        </div>
+        <div id="reviews-tab" class="tab-content">
+            <h3 class="reviewHeader">Reader Reviews</h3>
+            <div id="reviews-list" class="reviews-list">
+                {% if reviews %}
+                {% for review in reviews %}
+                <!-- <div class="review-card">
+                    <div class="review-card-header">
+                        <div class="user-info">
+                            <div class="user-avatar reviewer">{{ review.user.username|make_list|first|upper }}</div>
+                            <div class="user-details">
+                                <div class="user-name">{{ review.user.username }}</div>
+                                <div class="review-date">{{ review.created_at|date:"M d, Y" }}</div>
+                            </div>
+                        </div>
+                        <div class="rating">
+                            {% with ''|center:review.rating as stars %}
+                            {% for _ in stars %}★{% endfor %}
+                            {% endwith %}
+                        </div>
+                    </div>
+                    <div class="review-content">
+                        <p>{{ review.comment }}</p>
+                    </div>
+                </div> -->
+                {% endfor %}
+                {% else %}
+                <p class="no-reviews">No reviews yet. Be the first to review this book!</p>
+                {% endif %}
+            </div>
+
+            <div style="margin-top: 2rem;">
+                <h4>Write Your Review</h4>
+                <form id="review-form">
+                    {% csrf_token %}
+                    <input type="hidden" id="book-id" value="{{ book.id }}">
+                    <div class="form-group">
+                        <label class="form-label">Your Rating</label>
+                        <div class="rating-input">
+                            <select class="form-control" id="rating" name="rating" required style="max-width: 200px;">
+                                <option value="">Select Rating</option>
+                                <option value="5">★★★★★ (5 stars)</option>
+                                <option value="4">★★★★☆ (4 stars)</option>
+                                <option value="3">★★★☆☆ (3 stars)</option>
+                                <option value="2">★★☆☆☆ (2 stars)</option>
+                                <option value="1">★☆☆☆☆ (1 star)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Your Review</label>
+                        <textarea class="form-control" id="review-comment" name="comment"
+                                  placeholder="Share your thoughts about this book..."></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Submit Review</button>
+                </form>
+            </div>
+        </div>
+        <div id="similar-tab" class="tab-content">
+            <h3>Similar Books You May Enjoy</h3>
+
+            <!-- <div class="related-books-grid" style="margin-top: 1.5rem;"> -->
+
+            <div class="related-books">
+                <div class="related-books-grid">
+                    {% for book in similar_books %}
+                    <div class="book-card" onclick="window.location.href='/preview?id={{ book.id }}'">
+                        <img src="{{ book.thumbnail }}" alt="Book Cover" class="book-cover">
+                        <div class="book-info">
+                            <h3 class="book-title">{{ book.title }}</h3>
+                            <p class="book-author">By {{ book.authors }}</p>
+                            <div class="book-rating">
+                                <span class="stars">{% for i in "★★★★★"|slice:":book.rating"|default:"☆☆☆☆☆" %}★{% endfor %}</span>
+                                <span>{{ book.rating|default:"0" }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- </div> -->
+
+            <div style="margin-top: 2rem;">
+                <h4>Book Lists Featuring This Title</h4>
+                <ul style="list-style-type: none; padding: 0;">
+                    <li style="margin: 0.75rem 0;"><a href="#">Best Mystery Novels of 2025</a></li>
+                    <li style="margin: 0.75rem 0;"><a href="#">Books with Mysterious Small Towns</a></li>
+                    <li style="margin: 0.75rem 0;"><a href="#">Female Protagonists in Mystery Fiction</a></li>
+                    <li style="margin: 0.75rem 0;"><a href="#">If You Liked 'The Silent Echo', You'll Love These</a>
+                    </li>
+                    <li style="margin: 0.75rem 0;"><a href="#">Top-Rated Thrillers This Year</a></li>
+                </ul>
+            </div>
+        </div>
+
+    </div>
+
+
+    <div class="related-books">
+        <h2>Recommended Books</h2>
+        <div class="related-books-grid">
+            {% for book in recommended_books %}
+            <div class="book-card" onclick="window.location.href='/preview?id={{ book.id }}'">
+                <img src="{{ book.thumbnail }}" alt="Book Cover" class="book-cover">
+                <div class="book-info">
+                    <h3 class="book-title">{{ book.title }}</h3>
+                    <p class="book-author">By {{ book.authors }}</p>
+                    <div class="book-rating">
+                        <span class="stars">{% for i in "★★★★★"|slice:":book.rating"|default:"☆☆☆☆☆" %}★{% endfor %}</span>
+                        <span>{{ book.rating|default:"0" }}</span>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+
+<footer class="footer">
+    <div class="container">
+        <div class="footer-columns">
+            <div class="footer-column">
+                <h4>About BookHaven</h4>
+                <ul class="footer-links">
+                    <li class="footer-link"><a href="#">About Us</a></li>
+                    <li class="footer-link"><a href="#">Our Mission</a></li>
+                    <li class="footer-link"><a href="#">Library Locations</a></li>
+                    <li class="footer-link"><a href="#">Careers</a></li>
+                </ul>
+            </div>
+            <div class="footer-column">
+                <h4>Membership</h4>
+                <ul class="footer-links">
+                    <li class="footer-link"><a href="#">Join Now</a></li>
+                    <li class="footer-link"><a href="#">Membership Benefits</a></li>
+                    <li class="footer-link"><a href="#">Pricing</a></li>
+                    <li class="footer-link"><a href="#">Gift Cards</a></li>
+                </ul>
+            </div>
+            <div class="footer-column">
+                <h4>Support</h4>
+                <ul class="footer-links">
+                    <li class="footer-link"><a href="#">Help Center</a></li>
+                    <li class="footer-link"><a href="#">Contact Us</a></li>
+                    <li class="footer-link"><a href="#">FAQs</a></li>
+                    <li class="footer-link"><a href="#">Accessibility</a></li>
+                </ul>
+            </div>
+            <div class="footer-column">
+                <h4>Legal</h4>
+                <ul class="footer-links">
+                    <li class="footer-link"><a href="#">Terms of Service</a></li>
+                    <li class="footer-link"><a href="#">Privacy Policy</a></li>
+                    <li class="footer-link"><a href="#">Cookie Policy</a></li>
+                    <li class="footer-link"><a href="#">Copyright Info</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025 BookHaven. All rights reserved.</p>
+        </div>
+    </div>
+</footer>
+
+</body>
+<!-- <script src="{%static 'js/previewBook.js' %}"></script> -->
+
+</html>

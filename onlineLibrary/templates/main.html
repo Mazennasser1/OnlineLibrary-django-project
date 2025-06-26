@@ -1,0 +1,201 @@
+{% load static %}
+
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BookHaven - Your Online Library</title>
+    <link rel="stylesheet" href="{% static 'css/main.css' %}">
+    <script src="{%static 'js/navigator.js' %}"></script>
+</head>
+
+<body>
+<!-- Navigation Bar with Search -->
+<nav class="navbar">
+    <div class="container navbar-container">
+        <a href="{% url 'index' %}" class="logo">
+            <div class="logo-icon">B</div>
+            BookHaven
+        </a>
+
+        <div class="nav-center">
+            <div class="search-container">
+                <input type="text" class="search-input" placeholder="Search for books, authors, or genres...">
+                <button class="search-btn">Search</button>
+            </div>
+        </div>
+
+        <ul class="nav-links">
+            <li><a href="{% url 'index' %}" class="nav-link">Home</a></li>
+            <li><a href="{% url 'browse_books' %}" class="nav-link">Browse</a></li>
+            <li><a href="{%url 'user_dashboard'%}" class="nav-link">My Books</a></li>
+
+        </ul>
+        {% if user.is_authenticated %}
+            <div class="user-profile">
+                <div class="user-avatar" id="user-dropdown-toggle">
+                    {{ user.username|slice:":1"|upper }}{{ user.username|slice:"-1:"|upper }}
+                </div>
+                <div class="dropdown-menu" id="user-dropdown">
+                    <a href="{%url 'user_dashboard'%}" class="dropdown-item">My Profile</a>
+                    <div class="dropdown-divider"></div>
+                    <a href="{% url 'signout' %}" class="dropdown-item">Sign Out</a>
+                </div>
+            </div>
+        {% endif %}
+
+    </div>
+</nav>
+
+<!-- Home Page -->
+<section id="home-page">
+    <!-- Hero Landing Section with Reading Illustration -->
+    <div class="hero-section">
+        <div class="hero-content">
+            <div class="hero-text">
+                <h1 class="hero-title">Discover Your Next Favorite Book</h1>
+                <p class="hero-subtitle">Browse thousands of titles, rent with ease, and explore new worlds from the
+                    comfort of your device.</p>
+                <div class="hero-buttons">
+                    <a href="{% url 'browse_books' %}" class="btn btn-primary">Browse Library</a>
+                    <a href="{% url 'auth_page' %}?action=signup" class="btn btn-secondary">Sign Up</a>
+                </div>
+            </div>
+            <div class="hero-image">
+                <img src="{% static 'img/banner.jpg' %}" alt="Person reading a book illustration">
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Categories (Circular Style) -->
+        <div class="categories-container">
+            <h4>Browse by Category</h4>
+            <div class="categories-scroll">
+                <a href="{% url 'browse_books' %}" class="category-circle" data-category="Fiction">
+                    <div class="circle-icon">📚</div>
+                    <span class="circle-label">Fiction</span>
+                </a>
+                <a href="{% url 'browse_books' %}" class="category-circle" data-category="Mystery">
+                    <div class="circle-icon">🔍</div>
+                    <span class="circle-label">Mystery</span>
+                </a>
+                <a href="{% url 'browse_books' %}" class="category-circle" data-category="Sci-Fi">
+                    <div class="circle-icon">🚀</div>
+                    <span class="circle-label">Sci-Fi</span>
+                </a>
+                <a href="{% url 'browse_books' %}" class="category-circle" data-category="Romance">
+                    <div class="circle-icon">💕</div>
+                    <span class="circle-label">Romance</span>
+                </a>
+                <a href="{% url 'browse_books' %}" class="category-circle" data-category="Science">
+                    <div class="circle-icon">🧠</div>
+                    <span class="circle-label">Science</span>
+                </a>
+                <a href="{% url 'browse_books' %}" class="category-circle" data-category="Business">
+                    <div class="circle-icon">📈</div>
+                    <span class="circle-label">Business</span>
+                </a>
+                <a href="{% url 'browse_books' %}" class="category-circle" data-category="Drama">
+                    <div class="circle-icon">🎭</div>
+                    <span class="circle-label">Drama</span>
+                </a>
+                <a href="{% url 'browse_books' %}" class="category-circle" data-category="Fantasy">
+                    <div class="circle-icon">🧙‍♂️</div>
+                    <span class="circle-label">Fantasy</span>
+                </a>
+                <a href="{% url 'browse_books' %}" class="category-circle" data-category="History">
+                    <div class="circle-icon">📜</div>
+                    <span class="circle-label">History</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Featured Books -->
+        <h2 class="section-title">Featured Books</h2>
+        <div class="book-grid"></div>
+
+        <!-- New Releases Section -->
+        <h2 class="section-title">New Releases</h2>
+        <div class="book-grid"></div>
+
+        <!-- Reading Recommendations -->
+        <h2 class="section-title">Recommended For You</h2>
+       <div class="book-grid"></div>
+
+    </div>
+</section>
+
+
+<!-- Footer -->
+<footer class="footer">
+    <div class="container">
+        <div class="footer-columns">
+            <div class="footer-column">
+                <h4>BookHaven</h4>
+                <ul class="footer-links">
+                    <li class="footer-link"><a href="#">About Us</a></li>
+                    <li class="footer-link"><a href="#">Our Mission</a></li>
+                    <li class="footer-link"><a href="#">Partners</a></li>
+                    <li class="footer-link"><a href="#">Careers</a></li>
+                </ul>
+            </div>
+            <div class="footer-column">
+                <h4>Library</h4>
+                <ul class="footer-links">
+                    <li class="footer-link"><a href="#">Browse Books</a></li>
+                    <li class="footer-link"><a href="#">New Releases</a></li>
+                    <li class="footer-link"><a href="#">Featured</a></li>
+                    <li class="footer-link"><a href="#">Categories</a></li>
+                    <li class="footer-link"><a href="#">Authors</a></li>
+                </ul>
+            </div>
+            <div class="footer-column">
+                <h4>Account</h4>
+                <ul class="footer-links">
+                    <li class="footer-link"><a href="#">Sign In</a></li>
+                    <li class="footer-link"><a href="#">Register</a></li>
+                    <li class="footer-link"><a href="#">My Dashboard</a></li>
+                    <li class="footer-link"><a href="#">Rental History</a></li>
+                    <li class="footer-link"><a href="#">Wishlist</a></li>
+                </ul>
+            </div>
+            <div class="footer-column">
+                <h4>Support</h4>
+                <ul class="footer-links">
+                    <li class="footer-link"><a href="#">Contact Us</a></li>
+                    <li class="footer-link"><a href="#">FAQs</a></li>
+                    <li class="footer-link"><a href="#">Help Center</a></li>
+                    <li class="footer-link"><a href="#">Privacy Policy</a></li>
+                    <li class="footer-link"><a href="#">Terms of Service</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025 BookHaven. All rights reserved.</p>
+        </div>
+    </div>
+</footer>
+
+</body>
+<script src="{% static 'js/main.js' %}"></script>
+
+<script>
+// Category navigation functionality
+document.addEventListener('DOMContentLoaded', function() {
+    const categoryCircles = document.querySelectorAll('.category-circle');
+
+    categoryCircles.forEach(circle => {
+        circle.addEventListener('click', function(e) {
+            e.preventDefault();
+            const category = this.getAttribute('data-category');
+
+            // Redirect to browse page with category filter
+            window.location.href = `/browse/?category=${encodeURIComponent(category)}`;
+        });
+    });
+});
+</script>
+
+</html>

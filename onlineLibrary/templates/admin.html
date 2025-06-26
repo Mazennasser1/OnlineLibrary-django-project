@@ -1,0 +1,1622 @@
+{%load static%}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BookHaven - Admin Dashboard</title>
+    <link rel="icon" type="image/png" href="{% static 'img/logo.png' %}">
+
+    <link rel="stylesheet" href="{%static 'css/admin.css' %}">
+    <script src="{%static 'js/navigator.js' %}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+<nav class="navbar">
+    <div class="container navbar-container">
+        <a href="{% url 'index' %}" class="logo">
+            <div class="logo-icon">B</div>
+            BookHaven
+        </a>
+        <ul class="nav-links">
+            <li>
+                <a href="{% url 'signout' %}" class="nav-link logout-link">
+                        <span class="logout-icon">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+                                 xmlns="http://www.w3.org/2000/svg" stroke="#3a86ff">
+                                <path d="M9 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V5C3 4.46957 3.21071 3.96086 3.58579 3.58579C3.96086 3.21071 4.46957 3 5 3H9"
+                                      stroke="#3a86ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M16 17L21 12L16 7" stroke="#3a86ff" stroke-width="2" stroke-linecap="round"
+                                      stroke-linejoin="round"/>
+                                <path d="M21 12H9" stroke="#3a86ff" stroke-width="2" stroke-linecap="round"
+                                      stroke-linejoin="round"/>
+                            </svg>
+                        </span>
+                    <span>Logout</span>
+                </a>
+            </li>
+        </ul>
+    </div>
+</nav>
+
+
+<div class="admin-dashboard">
+    <div class="container">
+
+        <div class="admin-header">
+            <div>
+                <h1>Admin Dashboard</h1>
+                <p class="admin-welcome">Welcome back, Admin. Last login: April 2, 2025, 10:15 AM</p>
+            </div>
+            <button class="btn btn-primary" id="add-book-btn">Add New Book</button>
+        </div>
+
+
+        <div class="admin-stats">
+            <div class="stat-card books">
+                <div class="stat-title">Total Books</div>
+                <div class="stat-value">{{ stats.total_books }}</div>
+                <div class="stat-change">{{ stats.book_activity }} recent activities</div>
+            </div>
+            <div class="stat-card users">
+                <div class="stat-title">Total Users</div>
+                <div class="stat-value">{{ stats.total_users }}</div>
+                <div class="stat-change">+{{ stats.new_users }} this month</div>
+            </div>
+            <div class="stat-card borrowed">
+                <div class="stat-title">Currently Borrowed</div>
+                <div class="stat-value">{{ stats.borrowed_books }}</div>
+                <div class="stat-change">+{{ stats.new_borrowings }} this month</div>
+            </div>
+            <div class="stat-card overdue">
+                <div class="stat-title">Overdue Returns</div>
+                <div class="stat-value">
+                    {% if stats.overdue_books > 0 %}
+                    {{ stats.overdue_books }}
+                    {% else %}
+                    0
+                    {% endif %}
+                </div>
+                <div class="stat-change">
+                    {% if stats.overdue_books > 0 %}
+                    <span class="negative">{{ stats.overdue_books }} active</span>
+                    {% else %}
+                    No overdue books
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <p class="update-time">Last updated: {{ last_updated }}</p>
+
+
+        <div class="admin-tabs">
+            <div class="admin-tab active" data-tab="book-management">Book Management</div>
+            <div class="admin-tab" data-tab="user-management">User Management</div>
+            <div class="admin-tab" data-tab="borrowing">Borrowing Records</div>
+            <div class="admin-tab" data-tab="analytics">Analytics</div>
+        </div>
+
+
+        <div class="admin-content">
+
+                <div class="tab-content active" id="book-management">
+                    <div class="admin-search">
+                        <input type="text" class="form-control" placeholder="Search books by title, author, or ID..."
+                               id="book-search">
+                        <button class="search-btn">Search</button>
+                    </div>
+
+
+                    <!-- Replace the entire table section with this -->
+                    <div class="table-responsive">
+                        <table class="admin-table" id="books-table">
+                            <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Cover</th>
+                                <th>Title</th>
+                                <th>Author</th>
+                                <th>Category</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                            </thead>
+                            <tbody id="books-table-body">
+                            <!-- Content will be loaded dynamically via JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+                <ul class="pagination" id="pagination-controls">
+                    <li class="page-item"><a class="page-link" href="#" id="prev-page">Previous</a></li>
+                    <li class="page-item active"><a class="page-link" href="#" data-page="1">1</a></li>
+                    <li class="page-item"><a class="page-link" href="#" id="next-page">Next</a></li>
+                </ul>
+                </div>
+
+
+    <div class="tab-content" id="user-management">
+        <div class="admin-search">
+            <input type="text" class="form-control" placeholder="Search users by name or email..." id="user-search">
+            <button class="search-btn" id="search-users">Search</button>
+        </div>
+
+        <div class="table-responsive">
+            <table class="admin-table" id="users-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Username</th>
+                        <th>Email</th>
+                        <th>Status</th>
+                        <th>Role</th>
+                        <th>Joined</th>
+                        <th>Last Login</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="users-table-body">
+                    <!-- Content will be loaded dynamically -->
+                </tbody>
+            </table>
+        </div>
+
+        <ul class="pagination" id="users-pagination">
+            <li class="page-item"><a class="page-link" href="#" id="users-prev">Previous</a></li>
+            <li class="page-item"><a class="page-link" href="#" id="users-next">Next</a></li>
+        </ul>
+
+        <!-- User Edit Modal -->
+        <div class="modal-backdrop" id="user-modal-backdrop">
+            <div class="modal">
+                <div class="modal-header">
+                    <h3 class="modal-title" id="user-modal-title">Edit User</h3>
+                    <button class="modal-close" id="close-user-modal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <form id="user-form">
+                        <input type="hidden" id="user-id">
+                        <div class="form-group">
+                            <label class="form-label" for="user-username">Username</label>
+                            <input type="text" class="form-control" id="user-username" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="user-email">Email</label>
+                            <input type="email" class="form-control" id="user-email" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="user-password">New Password</label>
+                            <input type="password" class="form-control" id="user-password" placeholder="Leave blank to keep current">
+                        </div>
+                        <div class="form-row">
+                            <div class="form-col">
+                                <div class="form-group">
+                                    <label class="form-label" for="user-active">Active</label>
+                                    <select class="form-control" id="user-active">
+                                        <option value="true">Active</option>
+                                        <option value="false">Inactive</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-col">
+                                <div class="form-group">
+                                    <label class="form-label" for="user-staff">Role</label>
+                                    <select class="form-control" id="user-staff">
+                                        <option value="false">Regular User</option>
+                                        <option value="true">Staff Member</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" id="cancel-user">Cancel</button>
+                    <button class="btn btn-primary" id="save-user">Save Changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+            <div class="tab-content" id="borrowing">
+                <div class="borrowing-header">
+                    <h3>Borrowing Records</h3>
+                    <div class="borrowing-filter">
+                        <label for="borrowing-status-filter">Filter by status:</label>
+                        <select id="borrowing-status-filter" class="form-control">
+                            <option value="all">All Records</option>
+                            <option value="active">Active</option>
+                            <option value="returned">Returned</option>
+                            <option value="overdue">Overdue</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="table-responsive">
+                    <table class="admin-table" id="borrowings-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Book Title</th>
+                                <th>Borrower</th>
+                                <th>Borrow Date</th>
+                                <th>Due Date</th>
+                                <th>Return Date</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="borrowings-table-body">
+                            <!-- Content will be loaded dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+                
+                <ul class="pagination" id="borrowings-pagination">
+                    <li class="page-item"><a class="page-link" href="#" id="borrowings-prev">Previous</a></li>
+                    <li class="page-item"><a class="page-link" href="#" id="borrowings-next">Next</a></li>
+                </ul>
+            </div>
+    <div class="tab-content" id="analytics">
+        <div class="analytics-container">
+            <div class="analytics-header">
+                <h3>Library Analytics Dashboard</h3>
+                <div class="analytics-period-selector">
+<!--                    <button class="btn-period active" data-period="month">Last 30 Days</button>-->
+<!--                    <button class="btn-period" data-period="year">Last 12 Months</button>-->
+                </div>
+            </div>
+
+            <!-- Summary Cards -->
+            <div class="analytics-summary">
+                <div class="summary-card">
+                    <div class="summary-value" id="total-books">0</div>
+                    <div class="summary-label">Total Books</div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-value" id="available-books">0</div>
+                    <div class="summary-label">Available</div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-value" id="borrowed-books">0</div>
+                    <div class="summary-label">Borrowed</div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-value" id="total-users">0</div>
+                    <div class="summary-label">Total Users</div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-value" id="new-users-month">0</div>
+                    <div class="summary-label">New Users (30d)</div>
+                </div>
+            </div>
+
+            <!-- Charts Row -->
+            <div class="analytics-row">
+                <div class="analytics-chart">
+                    <h4>Borrowing Trends</h4>
+                    <canvas id="borrowingTrendChart"></canvas>
+                </div>
+                <div class="analytics-chart">
+                    <h4>Book Categories</h4>
+                    <canvas id="categoryDistributionChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Tables Row -->
+            <div class="analytics-row">
+                <div class="analytics-table">
+                    <h4>Most Popular Books</h4>
+                    <table class="analytics-data-table">
+                        <thead>
+                            <tr>
+                                <th>Title</th>
+                                <th>Author</th>
+                                <th>Borrow Count</th>
+                            </tr>
+                        </thead>
+                        <tbody id="popular-books-table">
+                            <!-- Filled by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+                <div class="analytics-table">
+                    <h4>Most Active Users</h4>
+                    <table class="analytics-data-table">
+                        <thead>
+                            <tr>
+                                <th>Username</th>
+                                <th>Email</th>
+                                <th>Borrow Count</th>
+                            </tr>
+                        </thead>
+                        <tbody id="active-users-table">
+                            <!-- Filled by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal-backdrop" id="book-modal-backdrop">
+    <div class="modal">
+        <div class="modal-header">
+            <h3 class="modal-title" id="book-modal-title">Add New Book</h3>
+            <button class="modal-close" id="close-book-modal">&times;</button>
+        </div>
+        <div class="modal-body">
+            <form id="book-form">
+                <input type="hidden" id="book-id">
+                <div class="alert alert-success" id="form-alert" style="display: none;">
+                    Book successfully added!
+                </div>
+                <div class="form-row">
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label class="form-label" for="book-title">Book Title</label>
+                            <input type="text" class="form-control" id="book-title" required>
+                        </div>
+                    </div>
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label class="form-label" for="book-author">Author</label>
+                            <input type="text" class="form-control" id="book-author" required>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label class="form-label" for="book-category">Category</label>
+                            <select class="form-control" id="book-category" required>
+                                <option value="">Select Category</option>
+                                <option value="Fiction">Fiction</option>
+                                <option value="Mystery">Mystery</option>
+                                <option value="Sci-Fi">Science Fiction</option>
+                                <option value="Romance">Romance</option>
+                                <option value="Fantasy">Fantasy</option>
+                                <option value="Biography">Biography</option>
+                                <option value="History">History</option>
+                                <option value="Self-Help">Self-Help</option>
+                                <option value="Business">Business</option>
+                                <option value="Drama">Drama</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label class="form-label" for="book-status">Status</label>
+                            <select class="form-control" id="book-status" required>
+                                <option value="Available">Available</option>
+                                <option value="Unavailable">Unavailable</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="book-description">Description</label>
+                    <textarea class="form-control" id="book-description" rows="5" required></textarea>
+                </div>
+                <div class="form-row">
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label class="form-label" for="book-isbn">ISBN</label>
+                            <input type="text" class="form-control" id="book-isbn">
+                        </div>
+                    </div>
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label class="form-label" for="book-pages">Pages</label>
+                            <input type="number" class="form-control" id="book-pages" min="1">
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="book-cover">Book Cover</label>
+                    <div class="book-image-preview">
+                        <img src="/api/placeholder/150/200" alt="Book Cover Preview" id="cover-preview">
+                    </div>
+                    <input type="file" class="form-control" id="book-cover" accept="image/*">
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" id="cancel-book">Cancel</button>
+            <button class="btn btn-primary" id="save-book">Save Book</button>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal-backdrop" id="delete-modal-backdrop">
+    <div class="modal">
+        <div class="modal-header">
+            <h3 class="modal-title">Confirm Deletion</h3>
+            <button class="modal-close" id="close-delete-modal">&times;</button>
+        </div>
+        <div class="modal-body">
+            <p>Are you sure you want to delete the book "<span id="delete-book-title">Book Title</span>"? This action
+                cannot be undone.</p>
+            <input type="hidden" id="delete-book-id">
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" id="cancel-delete">Cancel</button>
+            <button class="btn btn-danger" id="confirm-delete">Delete</button>
+        </div>
+    </div>
+</div>
+<!-- Add this script at the bottom of the file, before the closing body tag -->
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Load books from the server
+        let currentPage = 1;
+        const booksPerPage = 20; // Adjust as needed
+        let searchTerm = '';
+        let isSearching = false;
+
+// Function to load books with pagination
+        function loadBooks(page = 1) {
+            currentPage = page;
+            const url = new URL('/api/admin/books/', window.location.origin);
+            url.searchParams.append('page', page);
+            url.searchParams.append('per_page', booksPerPage);
+            if (isSearching) {
+                url.searchParams.append('search', searchTerm);
+            }
+
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    const tableBody = document.querySelector('#books-table-body');
+                    tableBody.innerHTML = '';
+
+                    if (data.books.length === 0) {
+                        tableBody.innerHTML = `
+                            <tr>
+                                <td colspan="7" class="text-center">
+                                    ${isSearching ? 'No books found matching your search' : 'No books available'}
+                                </td>
+                            </tr>
+                        `;
+                    } else {
+                        data.books.forEach(book => {
+                            const row = document.createElement('tr');
+                            row.innerHTML = `
+                                <td>${book.id}</td>
+                                <td><img src="${book.thumbnail || '/api/placeholder/50/75'}" alt="Book Cover" style="width:50px; height:75px; object-fit:cover;"></td>
+                                <td>${book.title}</td>
+                                <td>${book.authors}</td>
+                                <td>${book.categories}</td>
+                                <td>${book.status}</td>
+                                <td>
+                                    <button class="btn btn-primary btn-sm edit-book-btn" data-id="${book.id}">Edit</button>
+                                    <button class="btn btn-danger btn-sm delete-book-btn" data-id="${book.id}">Delete</button>
+                                </td>
+                            `;
+                            tableBody.appendChild(row);
+                        });
+                    }
+
+                    // Update pagination controls
+                    updatePaginationControls(data.pagination);
+
+                    // Add event listeners to the new buttons
+                    addEditEventListeners();
+                    addDeleteEventListeners();
+                })
+                .catch(error => {
+                    console.error('Error loading books:', error);
+                    showAlert('Error loading books', 'error');
+                });
+        }
+
+    // Update the updatePaginationControls function
+    function updatePaginationControls(pagination) {
+        const paginationEl = document.getElementById('pagination-controls');
+        if (!paginationEl) return;
+
+        paginationEl.innerHTML = '';
+
+        // Previous Button
+        const prevLi = document.createElement('li');
+        prevLi.className = `page-item ${pagination.current_page <= 1 ? 'disabled' : ''}`;
+        prevLi.innerHTML = `<a class="page-link" href="#" id="prev-page">Previous</a>`;
+        paginationEl.appendChild(prevLi);
+
+        // Page Numbers
+        const startPage = Math.max(1, pagination.current_page - 2);
+        const endPage = Math.min(pagination.total_pages, pagination.current_page + 2);
+
+        for (let i = startPage; i <= endPage; i++) {
+            const li = document.createElement('li');
+            li.className = `page-item ${i === pagination.current_page ? 'active' : ''}`;
+            li.innerHTML = `<a class="page-link" href="#" data-page="${i}">${i}</a>`;
+            paginationEl.appendChild(li);
+        }
+
+        // Next Button
+        const nextLi = document.createElement('li');
+        nextLi.className = `page-item ${pagination.current_page >= pagination.total_pages ? 'disabled' : ''}`;
+        nextLi.innerHTML = `<a class="page-link" href="#" id="next-page">Next</a>`;
+        paginationEl.appendChild(nextLi);
+
+        // Add event listeners for pagination
+        document.getElementById('prev-page').addEventListener('click', function(e) {
+            e.preventDefault();
+            if (pagination.current_page > 1) {
+                loadBooks(pagination.current_page - 1);
+            }
+        });
+
+        document.getElementById('next-page').addEventListener('click', function(e) {
+            e.preventDefault();
+            if (pagination.current_page < pagination.total_pages) {
+                loadBooks(pagination.current_page + 1);
+            }
+        });
+
+        // Add event listeners for page numbers
+        document.querySelectorAll('[data-page]').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                const page = parseInt(this.getAttribute('data-page'));
+                loadBooks(page);
+            });
+        });
+    }
+
+        // Function to handle adding a new book
+        function addNewBook(bookData) {
+            fetch('/api/admin/books/add/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken'),
+                },
+                body: JSON.stringify(bookData)
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showAlert('Book successfully added!');
+                        loadBooks();
+                    } else {
+                        showAlert('Error adding book: ' + data.error, 'error');
+                    }
+                })
+                .catch(error => {
+                    showAlert('Error adding book: ' + error, 'error');
+                });
+        }
+
+        // Function to handle updating a book
+        function updateBook(bookData) {
+            fetch('/api/admin/books/update/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken'),
+                },
+                body: JSON.stringify(bookData)
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showAlert('Book successfully updated!');
+                        loadBooks();
+                    } else {
+                        showAlert('Error updating book: ' + data.error, 'error');
+                    }
+                })
+                .catch(error => {
+                    showAlert('Error updating book: ' + error, 'error');
+                });
+        }
+
+        // Function to handle deleting a book
+        function deleteBook(bookId) {
+            fetch('/api/admin/books/delete/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken'),
+                },
+                body: JSON.stringify({id: bookId})
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showAlert('Book successfully deleted!');
+                        loadBooks();
+                    } else {
+                        showAlert('Error deleting book: ' + data.error, 'error');
+                    }
+                })
+                .catch(error => {
+                    showAlert('Error deleting book: ' + error, 'error');
+                });
+        }
+
+        // Helper function to get CSRF token
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        // Helper function to show alerts
+        function showAlert(message, type = 'success') {
+            const alertDiv = document.getElementById('form-alert');
+            alertDiv.textContent = message;
+            alertDiv.style.display = 'block';
+            alertDiv.className = `alert alert-${type}`;
+
+            setTimeout(() => {
+                alertDiv.style.display = 'none';
+            }, 5000);
+        }
+
+        // Function to add edit event listeners
+        function addEditEventListeners() {
+            document.querySelectorAll('.edit-book-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    const bookId = this.getAttribute('data-id');
+                    // Fetch single book details
+                    fetch(`/api/books/${bookId}/`)  // Changed to fetch single book
+                        .then(response => response.json())
+                        .then(book => {
+                            if (book) {
+                                document.getElementById('book-modal-title').textContent = 'Edit Book';
+                                document.getElementById('book-id').value = book.id;
+                                document.getElementById('book-title').value = book.title;
+                                document.getElementById('book-author').value = book.authors;
+                                document.getElementById('book-category').value = book.categories;
+                                document.getElementById('book-status').value = book.status;
+                                document.getElementById('book-description').value = book.description;
+                                document.getElementById('book-pages').value = book.page_count || '';
+                                document.getElementById('cover-preview').src = book.thumbnail || '/api/placeholder/150/200';
+
+                                // Show the modal
+                                document.getElementById('book-modal-backdrop').style.display = 'block';
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error fetching book details:', error);
+                            showAlert('Error loading book details', 'error');
+                        });
+                });
+            });
+        }
+
+        // Function to add delete event listeners
+        function addDeleteEventListeners() {
+            document.querySelectorAll('.delete-book-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    const bookId = this.getAttribute('data-id');
+                    const bookTitle = this.closest('tr').querySelector('td:nth-child(3)').textContent;
+
+                    document.getElementById('delete-book-title').textContent = bookTitle;
+                    document.getElementById('delete-book-id').value = bookId;
+                    document.getElementById('delete-modal-backdrop').style.display = 'block';
+                });
+            });
+        }
+
+        // Add event listener for delete confirmation
+        document.getElementById('confirm-delete').addEventListener('click', function() {
+            const bookId = document.getElementById('delete-book-id').value;
+
+            fetch('/api/admin/books/delete/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken'),
+                    },
+                body: JSON.stringify({ id: bookId })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                    showAlert('Book successfully deleted!');
+                    loadBooks(currentPage); // Reload current page
+                    } else {
+                    showAlert('Error deleting book: ' + data.error, 'error');
+                    }
+                })
+                .catch(error => {
+                showAlert('Error deleting book: ' + error, 'error');
+            });
+
+            document.getElementById('delete-modal-backdrop').style.display = 'none';
+        });
+
+        // Add event listener for save book
+        document.getElementById('save-book').addEventListener('click', function() {
+            const bookId = document.getElementById('book-id').value;
+            const bookData = {
+                id: bookId,
+                title: document.getElementById('book-title').value,
+                authors: document.getElementById('book-author').value,
+                categories: document.getElementById('book-category').value,
+                status: document.getElementById('book-status').value,
+                description: document.getElementById('book-description').value,
+                page_count: document.getElementById('book-pages').value
+            };
+
+            const url = bookId ? '/api/admin/books/update/' : '/api/admin/books/add/';
+
+            fetch(url, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken'),
+        },
+                body: JSON.stringify(bookData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+                    showAlert(bookId ? 'Book successfully updated!' : 'Book successfully added!');
+                    document.getElementById('book-modal-backdrop').style.display = 'none';
+                    loadBooks(currentPage); // Reload current page
+        } else {
+                    showAlert('Error: ' + data.error, 'error');
+        }
+    })
+    .catch(error => {
+                showAlert('Error: ' + error, 'error');
+    });
+});
+
+        // Initial load of books
+            loadBooks();
+
+        // Add new book button
+        document.getElementById('add-book-btn').addEventListener('click', function () {
+            document.getElementById('book-modal-title').textContent = 'Add New Book';
+            document.getElementById('book-form').reset();
+            document.getElementById('cover-preview').src = '/api/placeholder/150/200';
+            document.getElementById('book-modal-backdrop').style.display = 'block';
+        });
+
+        // Close modals
+        document.getElementById('close-book-modal').addEventListener('click', function () {
+            document.getElementById('book-modal-backdrop').style.display = 'none';
+        });
+
+        document.getElementById('cancel-book').addEventListener('click', function () {
+            document.getElementById('book-modal-backdrop').style.display = 'none';
+        });
+
+        document.getElementById('close-delete-modal').addEventListener('click', function () {
+            document.getElementById('delete-modal-backdrop').style.display = 'none';
+        });
+
+        // Handle image upload preview
+        document.getElementById('book-cover').addEventListener('change', function (e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function (event) {
+                    document.getElementById('cover-preview').src = event.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Update the search input event listener
+        document.getElementById('book-search').addEventListener('input', function(e) {
+            searchTerm = e.target.value.trim().toLowerCase();
+            isSearching = searchTerm.length > 0;
+            currentPage = 1; // Reset to first page when searching
+            loadBooks(1); // Reload books with search term
+        });
+    });
+</script>
+<script>
+    // User Management Variables
+let currentUsersPage = 1;
+const usersPerPage = 20;
+
+// Load Users Function
+function loadUsers(page = 1, searchTerm = '') {
+    let url = `/api/admin/users/?page=${page}&per_page=${usersPerPage}`;
+    if (searchTerm && searchTerm.length > 0) {
+        url += `&search=${encodeURIComponent(searchTerm)}`;
+    }
+    fetch(url)
+        .then(response => response.json())
+        .then(data => {
+            const tableBody = document.querySelector('#users-table-body');
+            tableBody.innerHTML = '';
+
+            data.users.forEach(user => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${user.id}</td>
+                    <td>${user.username}</td>
+                    <td>${user.email}</td>
+                    <td>${user.is_active ? 'Active' : 'Inactive'}</td>
+                    <td>${user.is_staff ? 'Staff' : 'User'}</td>
+                    <td>${user.date_joined}</td>
+                    <td>${user.last_login}</td>
+                    <td class="table-actions">
+                        <button class="btn btn-primary btn-sm edit-user-btn" data-id="${user.id}">Edit</button>
+                        <button class="btn btn-danger btn-sm delete-user-btn" data-id="${user.id}">Delete</button>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+
+            updateUsersPagination(data.pagination);
+            addUserEventListeners();
+        })
+        .catch(error => console.error('Error loading users:', error));
+}
+// Update Users Pagination
+function updateUsersPagination(pagination) {
+    const paginationEl = document.getElementById('users-pagination');
+    paginationEl.innerHTML = '';
+
+    // Previous Button
+    const prevLi = document.createElement('li');
+    prevLi.className = `page-item ${pagination.has_previous ? '' : 'disabled'}`;
+    prevLi.innerHTML = `<a class="page-link" href="#" id="users-prev">Previous</a>`;
+    paginationEl.appendChild(prevLi);
+
+    // Page Numbers
+    const startPage = Math.max(1, pagination.current_page - 2);
+    const endPage = Math.min(pagination.total_pages, pagination.current_page + 2);
+
+    // First page and ellipsis if needed
+    if (startPage > 1) {
+        const firstLi = document.createElement('li');
+        firstLi.className = 'page-item';
+        firstLi.innerHTML = `<a class="page-link" href="#" data-page="1">1</a>`;
+        paginationEl.appendChild(firstLi);
+
+        if (startPage > 2) {
+            const ellipsisLi = document.createElement('li');
+            ellipsisLi.className = 'page-item disabled';
+            ellipsisLi.innerHTML = `<span class="page-link">...</span>`;
+            paginationEl.appendChild(ellipsisLi);
+        }
+    }
+
+    // Middle pages
+    for (let i = startPage; i <= endPage; i++) {
+        const li = document.createElement('li');
+        li.className = `page-item ${i === pagination.current_page ? 'active' : ''}`;
+        li.innerHTML = `<a class="page-link" href="#" data-users-page="${i}">${i}</a>`;
+        paginationEl.appendChild(li);
+    }
+
+    // Last page and ellipsis if needed
+    if (endPage < pagination.total_pages) {
+        if (endPage < pagination.total_pages - 1) {
+            const ellipsisLi = document.createElement('li');
+            ellipsisLi.className = 'page-item disabled';
+            ellipsisLi.innerHTML = `<span class="page-link">...</span>`;
+            paginationEl.appendChild(ellipsisLi);
+        }
+
+        const lastLi = document.createElement('li');
+        lastLi.className = 'page-item';
+        lastLi.innerHTML = `<a class="page-link" href="#" data-users-page="${pagination.total_pages}">${pagination.total_pages}</a>`;
+        paginationEl.appendChild(lastLi);
+    }
+
+    // Next Button
+    const nextLi = document.createElement('li');
+    nextLi.className = `page-item ${pagination.has_next ? '' : 'disabled'}`;
+    nextLi.innerHTML = `<a class="page-link" href="#" id="users-next">Next</a>`;
+    paginationEl.appendChild(nextLi);
+
+    currentUsersPage = pagination.current_page;
+}
+
+// Add User Event Listeners
+function attachUserModalListeners() {
+    // Remove previous listeners to prevent duplicates
+    const saveBtn = document.getElementById('save-user');
+    const cancelBtn = document.getElementById('cancel-user');
+    const closeBtn = document.getElementById('close-user-modal');
+    if (saveBtn._hasListener) return; // Only attach once
+    saveBtn._hasListener = true;
+    cancelBtn._hasListener = true;
+    closeBtn._hasListener = true;
+
+    saveBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        const userData = {
+            id: document.getElementById('user-id').value,
+            username: document.getElementById('user-username').value,
+            email: document.getElementById('user-email').value,
+            is_active: document.getElementById('user-active').value === 'true',
+            is_staff: document.getElementById('user-staff').value === 'true',
+            password: document.getElementById('user-password').value
+        };
+        fetch('/api/admin/users/update/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCsrfToken(),
+            },
+            body: JSON.stringify(userData)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showAlert('User updated successfully!');
+                loadUsers(currentUsersPage);
+                document.getElementById('user-modal-backdrop').style.display = 'none';
+            } else {
+                showAlert('Error updating user: ' + data.error, 'error');
+            }
+        })
+        .catch(error => {
+            showAlert('Error updating user: ' + error, 'error');
+        });
+    });
+    cancelBtn.addEventListener('click', function() {
+        document.getElementById('user-modal-backdrop').style.display = 'none';
+    });
+    closeBtn.addEventListener('click', function() {
+        document.getElementById('user-modal-backdrop').style.display = 'none';
+    });
+}
+
+function addUserEventListeners() {
+    // Edit User
+    document.querySelectorAll('.edit-user-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            const userId = this.getAttribute('data-id');
+            fetch(`/api/admin/users/`)
+                .then(response => response.json())
+                .then(data => {
+                    const user = data.users.find(u => u.id == userId);
+                    if (user) {
+                        document.getElementById('user-modal-title').textContent = `Edit User: ${user.username}`;
+                        document.getElementById('user-id').value = user.id;
+                        document.getElementById('user-username').value = user.username;
+                        document.getElementById('user-email').value = user.email;
+                        document.getElementById('user-active').value = user.is_active.toString();
+                        document.getElementById('user-staff').value = user.is_staff.toString();
+                        document.getElementById('user-password').value = '';
+
+                        document.getElementById('user-modal-backdrop').style.display = 'block';
+                        attachUserModalListeners();
+                    }
+                });
+        });
+    });
+
+    // Delete User
+    document.querySelectorAll('.delete-user-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            const userId = this.getAttribute('data-id');
+            const username = this.closest('tr').querySelector('td:nth-child(2)').textContent;
+
+            if (confirm(`Are you sure you want to delete user "${username}"? This cannot be undone.`)) {
+                fetch('/api/admin/users/delete/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCsrfToken(),
+                    },
+                    body: JSON.stringify({id: userId})
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showAlert(`User "${username}" deleted successfully!`);
+                        loadUsers(currentUsersPage);
+                    } else {
+                        showAlert(`Error: ${data.error}`, 'error');
+                    }
+                })
+                .catch(error => {
+                    showAlert('Error deleting user: ' + error, 'error');
+                });
+            }
+        });
+    });
+}
+
+// User Modal Controls
+document.getElementById('save-user').addEventListener('click', function() {
+    const userData = {
+        id: document.getElementById('user-id').value,
+        username: document.getElementById('user-username').value,
+        email: document.getElementById('user-email').value,
+        is_active: document.getElementById('user-active').value === 'true',
+        is_staff: document.getElementById('user-staff').value === 'true',
+        password: document.getElementById('user-password').value
+    };
+
+    fetch('/api/admin/users/update/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken'),
+        },
+        body: JSON.stringify(userData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showAlert('User updated successfully!');
+            loadUsers(currentUsersPage);
+            document.getElementById('user-modal-backdrop').style.display = 'none';
+        } else {
+            showAlert('Error updating user: ' + data.error, 'error');
+        }
+    })
+    .catch(error => {
+        showAlert('Error updating user: ' + error, 'error');
+    });
+});
+
+// User Pagination Controls
+document.addEventListener('click', function(e) {
+    if (e.target.hasAttribute('data-users-page')) {
+        e.preventDefault();
+        loadUsers(parseInt(e.target.getAttribute('data-users-page')));
+    }
+
+    if (e.target.id === 'users-prev') {
+        e.preventDefault();
+        if (currentUsersPage > 1) {
+            loadUsers(currentUsersPage - 1);
+        }
+    }
+
+    if (e.target.id === 'users-next') {
+        e.preventDefault();
+        loadUsers(currentUsersPage + 1);
+    }
+});
+
+
+// Close User Modal
+document.getElementById('close-user-modal').addEventListener('click', function() {
+    document.getElementById('user-modal-backdrop').style.display = 'none';
+});
+
+document.getElementById('cancel-user').addEventListener('click', function() {
+    document.getElementById('user-modal-backdrop').style.display = 'none';
+});
+
+const userSearchInput = document.getElementById('user-search');
+const userSearchBtn = document.getElementById('search-users');
+let userSearchTerm = '';
+if (userSearchInput && userSearchBtn) {
+    userSearchBtn.addEventListener('click', function() {
+        userSearchTerm = userSearchInput.value.trim();
+        loadUsers(1, userSearchTerm);
+    });
+    userSearchInput.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+            userSearchTerm = userSearchInput.value.trim();
+            loadUsers(1, userSearchTerm);
+        }
+    });
+}
+
+// Tab Switching
+document.querySelectorAll('.admin-tab').forEach(tab => {
+    tab.addEventListener('click', function() {
+        // Remove active class from all tabs
+        document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
+        // Add active class to clicked tab
+        this.classList.add('active');
+
+        // Hide all content
+        document.querySelectorAll('.tab-content').forEach(content => {
+            content.classList.remove('active');
+        });
+
+        // Show corresponding content
+        const tabId = this.getAttribute('data-tab');
+        document.getElementById(tabId).classList.add('active');
+
+        // Load data if needed
+        if (tabId === 'user-management') {
+            loadUsers();
+        } else if (tabId === 'book-management') {
+            loadBooks();
+        } else if (tabId === 'borrowing') {
+            loadBorrowingRecords();
+        }
+    });
+});
+
+// Initial load of users when tab is clicked
+document.querySelector('.admin-tab[data-tab="user-management"]').addEventListener('click', function() {
+    loadUsers();
+});
+</script>
+
+<script>
+// Borrowing Records Management
+let borrowingsCurrentPage = 1;
+const borrowingsPerPage = 20;
+let currentBorrowingStatus = 'all';
+
+function loadBorrowingRecords(page = 1, status = 'all') {
+    showLoadingIndicator('borrowing');
+
+    const url = `/api/admin/borrowings/?page=${page}&per_page=${borrowingsPerPage}` +
+                (status !== 'all' ? `&status=${status}` : '');
+
+    fetch(url)
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                updateBorrowingTable(data.borrowings);
+                updateBorrowingPagination({
+                    page: data.page,
+                    total_pages: data.total_pages,
+                    has_previous: data.page > 1,
+                    has_next: data.page < data.total_pages
+                });
+            } else {
+                showError('borrowing', 'Failed to load borrowing records');
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching borrowing records:', error);
+            showError('borrowing', 'Error loading borrowing records');
+        });
+}
+
+function showLoadingIndicator(section) {
+    const tableBody = document.querySelector(`#${section}-table-body`);
+    if (tableBody) {
+        tableBody.innerHTML = '<tr><td colspan="8" class="loading">Loading...</td></tr>';
+    }
+}
+
+function showError(section, message) {
+    const tableBody = document.querySelector(`#${section}-table-body`);
+    if (tableBody) {
+        tableBody.innerHTML = `<tr><td colspan="8" class="error">${message}</td></tr>`;
+    }
+}
+
+function updateBorrowingTable(borrowings) {
+    const tableBody = document.querySelector('#borrowings-table-body');
+    tableBody.innerHTML = '';
+
+    if (borrowings.length === 0) {
+        tableBody.innerHTML = '<tr><td colspan="8" class="text-center">No borrowing records found</td></tr>';
+        return;
+    }
+
+    borrowings.forEach(borrowing => {
+        const row = document.createElement('tr');
+
+        // Add status-based class to the row
+        if (borrowing.status === 'Overdue') {
+            row.classList.add('overdue-row');
+        } else if (borrowing.status === 'Active') {
+            row.classList.add('active-row');
+        }
+
+        row.innerHTML = `
+            <td>${borrowing.id}</td>
+            <td>${borrowing.book_title}</td>
+            <td>${borrowing.username}</td>
+            <td>${borrowing.borrow_date}</td>
+            <td>${borrowing.due_date}</td>
+            <td>${borrowing.return_date || '-'}</td>
+            <td>
+                <span class="status-badge status-${borrowing.status.toLowerCase()}">
+                    ${borrowing.status}
+                </span>
+            </td>
+            <td class="table-actions">
+                ${borrowing.status === 'Active' || borrowing.status === 'Overdue' ?
+                    `<button class="btn btn-primary btn-sm return-book-btn"
+                        data-id="${borrowing.id}"
+                        data-book-id="${borrowing.book_id}">
+                        Return
+                    </button>` :
+                    `<button class="btn btn-secondary btn-sm" disabled>Returned</button>`
+                }
+            </td>
+        `;
+        tableBody.appendChild(row);
+    });
+
+    // Add event listeners to return buttons
+    document.querySelectorAll('.return-book-btn').forEach(button => {
+        button.addEventListener('click', handleReturnBook);
+    });
+}
+
+function updateBorrowingPagination(data) {
+    const paginationEl = document.getElementById('borrowings-pagination');
+    if (!paginationEl) return;
+
+    paginationEl.innerHTML = '';
+
+    // Previous Button
+    const prevLi = document.createElement('li');
+    prevLi.className = `page-item ${data.page <= 1 ? 'disabled' : ''}`;
+    prevLi.innerHTML = `<a class="page-link" href="#" id="borrowings-prev">Previous</a>`;
+    paginationEl.appendChild(prevLi);
+
+    // Page Numbers
+    const startPage = Math.max(1, data.page - 2);
+    const endPage = Math.min(data.total_pages, data.page + 2);
+
+    for (let i = startPage; i <= endPage; i++) {
+        const li = document.createElement('li');
+        li.className = `page-item ${i === data.page ? 'active' : ''}`;
+        li.innerHTML = `<a class="page-link" href="#" data-page="${i}">${i}</a>`;
+        paginationEl.appendChild(li);
+    }
+
+    // Next Button
+    const nextLi = document.createElement('li');
+    nextLi.className = `page-item ${data.page >= data.total_pages ? 'disabled' : ''}`;
+    nextLi.innerHTML = `<a class="page-link" href="#" id="borrowings-next">Next</a>`;
+    paginationEl.appendChild(nextLi);
+
+    borrowingsCurrentPage = data.page;
+}
+
+function handleReturnBook(event) {
+    const borrowingId = event.target.dataset.id;
+    const bookId = event.target.dataset.bookId;
+
+    if (confirm('Are you sure you want to mark this book as returned?')) {
+        fetch('/api/admin/return/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCsrfToken(),
+                'X-Requested-With': 'XMLHttpRequest'  // Helps Django identify AJAX requests
+            },
+            body: JSON.stringify({
+                book_id: bookId,
+                borrowing_id: borrowingId
+            }),
+            credentials: 'same-origin'  // Ensures cookies (including CSRF) are sent
+        })
+        .then(response => {
+            if (!response.ok) {
+                return response.json().then(err => {
+                    throw new Error(err.message || 'Failed to return book');
+                });
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.status === 'success') {
+                showAlert('Book returned successfully!');
+                loadBorrowingRecords(borrowingsCurrentPage, currentBorrowingStatus);
+            } else {
+                showAlert('Error returning book: ' + (data.message || 'Unknown error'), 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error returning book:', error);
+            showAlert('An error occurred while returning the book: ' + error.message, 'error');
+        });
+    }
+}
+
+// Helper function to get CSRF token
+function getCsrfToken() {
+    const cookies = document.cookie.split(';');
+    for (let cookie of cookies) {
+        const [name, value] = cookie.trim().split('=');
+        if (name === 'csrftoken') {
+            return value;
+        }
+    }
+    return '';
+}
+
+// Helper function to show alerts
+function showAlert(message, type = 'success') {
+    const alertDiv = document.createElement('div');
+    alertDiv.className = `alert alert-${type}`;
+    alertDiv.textContent = message;
+
+    // Add to top of content area
+    const contentArea = document.querySelector('.admin-content');
+    if (contentArea) {
+        contentArea.insertBefore(alertDiv, contentArea.firstChild);
+
+        // Remove after 5 seconds
+        setTimeout(() => {
+            alertDiv.remove();
+        }, 5000);
+    }
+}
+
+// Initialize borrowing records when the tab is clicked
+document.querySelector('.admin-tab[data-tab="borrowing"]').addEventListener('click', function() {
+    loadBorrowingRecords();
+});
+
+// Add event listeners for borrowing pagination
+document.addEventListener('click', function(e) {
+    if (e.target.id === 'borrowings-prev') {
+        e.preventDefault();
+        if (borrowingsCurrentPage > 1) {
+            loadBorrowingRecords(borrowingsCurrentPage - 1, currentBorrowingStatus);
+        }
+    } else if (e.target.id === 'borrowings-next') {
+        e.preventDefault();
+        loadBorrowingRecords(borrowingsCurrentPage + 1, currentBorrowingStatus);
+    } else if (e.target.hasAttribute('data-page')) {
+        e.preventDefault();
+        const page = parseInt(e.target.getAttribute('data-page'));
+        loadBorrowingRecords(page, currentBorrowingStatus);
+    }
+});
+
+// Add event listener for status filter
+document.getElementById('borrowing-status-filter').addEventListener('change', function() {
+    currentBorrowingStatus = this.value;
+    loadBorrowingRecords(1, currentBorrowingStatus);
+});
+
+// Check if borrowing tab is active on page load and load data if needed
+document.addEventListener('DOMContentLoaded', function() {
+    const activeTab = document.querySelector('.admin-tab.active');
+    if (activeTab && activeTab.getAttribute('data-tab') === 'borrowing') {
+        loadBorrowingRecords();
+    }
+});
+// Helper function to get CSRF token
+function getCsrfToken() {
+    const cookies = document.cookie.split(';');
+    for (let cookie of cookies) {
+        const [name, value] = cookie.trim().split('=');
+        if (name === 'csrftoken') {
+            return value;
+        }
+    }
+    return '';
+}
+
+// Analytics initialization and chart setup
+document.addEventListener('DOMContentLoaded', function() {
+    // Chart instances
+    let borrowingTrendChart = null;
+    let categoryDistributionChart = null;
+    let currentPeriod = 'month'; // default to month view
+
+    // Function to load analytics data
+    function loadAnalyticsData() {
+        // Show loading indicators
+        document.getElementById('borrowingTrendChart').innerHTML = '<div class="loading">Loading...</div>';
+        document.getElementById('categoryDistributionChart').innerHTML = '<div class="loading">Loading...</div>';
+        document.getElementById('popular-books-table').innerHTML = '<tr><td colspan="3">Loading...</td></tr>';
+        document.getElementById('active-users-table').innerHTML = '<tr><td colspan="3">Loading...</td></tr>';
+
+        // Fetch data from the backend API
+        fetch(`/api/admin/analytics/?period=${currentPeriod}`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`API error: ${response.status} ${response.statusText}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                updateAnalyticsUI(data);
+            })
+            .catch(error => {
+                console.error("Error loading analytics:", error);
+                // Show error message in UI
+                document.getElementById('borrowingTrendChart').innerHTML = '<div class="error">Failed to load data</div>';
+                document.getElementById('categoryDistributionChart').innerHTML = '<div class="error">Failed to load data</div>';
+                document.getElementById('popular-books-table').innerHTML = '<tr><td colspan="3">Failed to load data</td></tr>';
+                document.getElementById('active-users-table').innerHTML = '<tr><td colspan="3">Failed to load data</td></tr>';
+            });
+    }
+
+    function updateAnalyticsUI(data) {
+        try {
+            // 1. Update Summary Cards
+            document.getElementById('total-books').textContent = data.stats.books.total;
+            document.getElementById('available-books').textContent = data.stats.books.available;
+            document.getElementById('borrowed-books').textContent = data.stats.books.borrowed;
+            document.getElementById('total-users').textContent = data.stats.users.total;
+            document.getElementById('new-users-month').textContent = data.stats.users.new_month;
+
+            // 2. Update Popular Books Table
+            const popularBooksTable = document.getElementById('popular-books-table');
+            if (data.popular_books && data.popular_books.length > 0) {
+                popularBooksTable.innerHTML = data.popular_books.map(book => `
+                    <tr>
+                        <td>${book.title}</td>
+                        <td>${book.author}</td>
+                        <td>${book.borrow_count}</td>
+                    </tr>
+                `).join('');
+            } else {
+                popularBooksTable.innerHTML = '<tr><td colspan="3">No data available</td></tr>';
+            }
+
+            // 3. Update Active Users Table
+            const activeUsersTable = document.getElementById('active-users-table');
+            if (data.active_users && data.active_users.length > 0) {
+                activeUsersTable.innerHTML = data.active_users.map(user => `
+                    <tr>
+                        <td>${user.username}</td>
+                        <td>${user.email}</td>
+                        <td>${user.borrow_count}</td>
+                    </tr>
+                `).join('');
+            } else {
+                activeUsersTable.innerHTML = '<tr><td colspan="3">No data available</td></tr>';
+            }
+
+            // 4. Update Charts
+            updateCharts(data);
+        } catch (error) {
+            console.error("Error updating UI:", error);
+        }
+    }
+
+    function updateCharts(data) {
+        // Make sure the canvas contexts are clear before creating new charts
+        const borrowingCanvas = document.getElementById('borrowingTrendChart');
+        const categoryCanvas = document.getElementById('categoryDistributionChart');
+
+        // Create fresh canvas elements to prevent chart overlay issues
+        borrowingCanvas.remove();
+        categoryCanvas.remove();
+
+        document.querySelector('.analytics-chart:first-child h4').insertAdjacentHTML(
+            'afterend',
+            '<canvas id="borrowingTrendChart"></canvas>'
+        );
+
+        document.querySelector('.analytics-chart:nth-child(2) h4').insertAdjacentHTML(
+            'afterend',
+            '<canvas id="categoryDistributionChart"></canvas>'
+        );
+
+        // Get the new canvas contexts
+        const trendCtx = document.getElementById('borrowingTrendChart').getContext('2d');
+        const categoryCtx = document.getElementById('categoryDistributionChart').getContext('2d');
+
+        // 1. Borrowing Trends Chart
+        if (data.trends && data.trends.borrow_daily && data.trends.borrow_daily.length > 0) {
+            borrowingTrendChart = new Chart(trendCtx, {
+                type: 'line',
+                data: {
+                    labels: data.trends.borrow_daily.map(item => item.borrow_date),
+                    datasets: [{
+                        label: 'Books Borrowed',
+                        data: data.trends.borrow_daily.map(item => item.count),
+                        backgroundColor: 'rgba(58, 134, 255, 0.2)',
+                        borderColor: 'rgba(58, 134, 255, 1)',
+                        borderWidth: 2,
+                        tension: 0.1,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Books Borrowed'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Date'
+                            }
+                        }
+                    }
+                }
+            });
+        } else {
+            // No data available
+            trendCtx.font = '14px Arial';
+            trendCtx.fillText('No borrowing data available', 50, 50);
+        }
+
+        // 2. Category Distribution Chart
+        if (data.categories && data.categories.length > 0) {
+            categoryDistributionChart = new Chart(categoryCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: data.categories.map(item => item.name),
+                    datasets: [{
+                        data: data.categories.map(item => item.count),
+                        backgroundColor: [
+                            '#3a86ff', '#8338ec', '#ff006e', '#fb5607', '#ffbe0b',
+                            '#06d6a0', '#118ab2', '#073b4c', '#ef476f', '#ffd166'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: {
+                            position: 'right',
+                            labels: {
+                                boxWidth: 12,
+                                padding: 10
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const label = context.label || '';
+                                    const value = context.raw || 0;
+                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                    const percentage = total > 0 ? Math.round((value / total) * 100) : 0;
+                                    return `${label}: ${value} (${percentage}%)`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        } else {
+            // No data available
+            categoryCtx.font = '14px Arial';
+            categoryCtx.fillText('No category data available', 50, 50);
+        }
+    }
+
+    // Period Selector
+    document.querySelectorAll('.btn-period').forEach(btn => {
+        btn.addEventListener('click', function() {
+            document.querySelectorAll('.btn-period').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            currentPeriod = this.dataset.period;
+            loadAnalyticsData();
+        });
+    });
+
+    // Load analytics when tab is clicked
+    document.querySelector('.admin-tab[data-tab="analytics"]').addEventListener('click', function() {
+        // Ensure Chart.js is loaded
+        if (typeof Chart === 'undefined') {
+            console.error("Chart.js is not loaded!");
+            return;
+        }
+
+        // Load the analytics data
+        loadAnalyticsData();
+    });
+});
+
+</script>
+
+
+<script src="{%static 'js/admin.js' %}"></script>
+</body>

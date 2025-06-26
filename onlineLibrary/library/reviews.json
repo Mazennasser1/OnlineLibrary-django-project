@@ -1,0 +1,234 @@
+{
+    "reviews": [
+        {
+            "id": 24,
+            "book_id": "3",
+            "user_id": 2,
+            "username": "Mazen",
+            "rating": 4,
+            "comment": "xfg",
+            "created_at": "2025-05-19T00:39:18.855492",
+            "updated_at": "2025-05-19T00:39:18.855492"
+        },
+        {
+            "id": 25,
+            "book_id": "3",
+            "user_id": 2,
+            "username": "Mazen",
+            "rating": 4,
+            "comment": "adsad",
+            "created_at": "2025-05-19T00:42:41.660202",
+            "updated_at": "2025-05-19T00:42:41.660202"
+        },
+        {
+            "id": 26,
+            "book_id": "3",
+            "user_id": 2,
+            "username": "Mazen",
+            "rating": 3,
+            "comment": "ghj",
+            "created_at": "2025-05-19T00:43:56.178547",
+            "updated_at": "2025-05-19T00:43:56.178547"
+        },
+        {
+            "id": 27,
+            "book_id": "3",
+            "user_id": 2,
+            "username": "Mazen",
+            "rating": 5,
+            "comment": "asd",
+            "created_at": "2025-05-19T00:45:23.980934",
+            "updated_at": "2025-05-19T00:45:23.980934"
+        },
+        {
+            "id": 28,
+            "book_id": "3",
+            "user_id": 2,
+            "username": "Mazen",
+            "rating": 2,
+            "comment": "rty",
+            "created_at": "2025-05-19T00:46:27.149244",
+            "updated_at": "2025-05-19T00:46:27.149244"
+        },
+        {
+            "id": 29,
+            "book_id": "3",
+            "user_id": 2,
+            "username": "Mazen",
+            "rating": 3,
+            "comment": "ghj",
+            "created_at": "2025-05-19T00:46:44.588799",
+            "updated_at": "2025-05-19T00:46:44.588799"
+        },
+        {
+            "id": 30,
+            "book_id": "3",
+            "user_id": 2,
+            "username": "Mazen",
+            "rating": 3,
+            "comment": "asd",
+            "created_at": "2025-05-19T00:50:56.217279",
+            "updated_at": "2025-05-19T00:50:56.217279"
+        },
+        {
+            "id": 31,
+            "book_id": "3",
+            "user_id": 2,
+            "username": "Mazen",
+            "rating": 1,
+            "comment": "asd",
+            "created_at": "2025-05-19T00:51:30.619633",
+            "updated_at": "2025-05-19T00:51:30.619633"
+        },
+        {
+            "id": 32,
+            "book_id": "3",
+            "user_id": 2,
+            "username": "Mazen",
+            "rating": 4,
+            "comment": "sdf",
+            "created_at": "2025-05-19T00:55:15.675233",
+            "updated_at": "2025-05-19T00:55:15.675233"
+        },
+        {
+            "id": 33,
+            "book_id": "3",
+            "user_id": 2,
+            "username": "Mazen",
+            "rating": 4,
+            "comment": "as",
+            "created_at": "2025-05-19T01:01:53.013157",
+            "updated_at": "2025-05-19T01:01:53.013157"
+        },
+        {
+            "id": 11,
+            "book_id": "4",
+            "user_id": 2,
+            "username": "Mazen",
+            "rating": 4,
+            "comment": "\u0643\u062a\u0627\u0628 \u062d\u0644\u0648 \u0648 \u0641\u0643\u0631\u062a\u0647 \u0631\u0627\u0626\u0639\u0629\n",
+            "created_at": "2025-05-19T01:14:01.545257",
+            "updated_at": "2025-05-19T01:14:01.545257"
+        },
+        {
+            "id": 12,
+            "book_id": "4",
+            "user_id": 2,
+            "username": "Mazen",
+            "rating": 3,
+            "comment": "\u0643\u062a\u0627\u0628 \u0645\u062a\u0648\u0633\u0637",
+            "created_at": "2025-05-19T01:28:32.252034",
+            "updated_at": "2025-05-19T01:28:32.252034"
+        },
+        {
+            "id": 13,
+            "book_id": "4",
+            "user_id": 2,
+            "username": "Mazen",
+            "rating": 4,
+            "comment": "\u0643\u062a\u0627\u0628 \u062c\u0645\u064a\u0644",
+            "created_at": "2025-05-19T01:36:29.553104",
+            "updated_at": "2025-05-19T01:36:29.553104"
+        },
+        {
+            "id": 14,
+            "book_id": "2",
+            "user_id": 2,
+            "username": "Mazen",
+            "rating": 3,
+            "comment": "\u0635\u062b\u0642",
+            "created_at": "2025-05-19T01:37:40.826942",
+            "updated_at": "2025-05-19T01:37:40.826942"
+        },
+        {
+            "id": 15,
+            "book_id": "5",
+            "user_id": 2,
+            "username": "Mazen",
+            "rating": 5,
+            "comment": "\u0631\u0627\u0626\u0639",
+            "created_at": "2025-05-19T01:40:19.464296",
+            "updated_at": "2025-05-19T01:40:19.464296"
+        },
+        {
+            "id": 16,
+            "book_id": "4",
+            "user_id": 5,
+            "username": "Meza",
+            "rating": 3,
+            "comment": "\u0643\u062a\u0627\u0628 \u0645\u062a\u0648\u0633\u0637",
+            "created_at": "2025-05-19T09:08:32.604774",
+            "updated_at": "2025-05-19T09:08:32.604774"
+        },
+        {
+            "id": 17,
+            "book_id": "2",
+            "user_id": 5,
+            "username": "Meza",
+            "rating": 3,
+            "comment": "\u062c\u0645\u064a\u0644\n",
+            "created_at": "2025-05-19T13:38:57.642667",
+            "updated_at": "2025-05-19T13:38:57.642667"
+        },
+        {
+            "id": 18,
+            "book_id": "1",
+            "user_id": 2,
+            "username": "Mazen",
+            "rating": 2,
+            "comment": "\u0643\u062a\u0627\u0628 \u0633\u064a\u0626",
+            "created_at": "2025-05-19T13:55:51.057605",
+            "updated_at": "2025-05-19T13:55:51.057605"
+        },
+        {
+            "id": 19,
+            "book_id": "3",
+            "user_id": 1,
+            "username": "fras",
+            "rating": 5,
+            "comment": "Nice book",
+            "created_at": "2025-05-19T15:26:25.921993",
+            "updated_at": "2025-05-19T15:26:25.921993"
+        },
+        {
+            "id": 20,
+            "book_id": "5",
+            "user_id": 5,
+            "username": "fras",
+            "rating": 4,
+            "comment": "Nice one",
+            "created_at": "2025-05-19T15:31:26.445101",
+            "updated_at": "2025-05-19T15:31:26.445101"
+        },
+        {
+            "id": 21,
+            "book_id": "1",
+            "user_id": 6,
+            "username": "fras",
+            "rating": 5,
+            "comment": "Test",
+            "created_at": "2025-05-21T13:55:53.479733",
+            "updated_at": "2025-05-21T13:55:53.479733"
+        },
+        {
+            "id": 22,
+            "book_id": "3",
+            "user_id": 7,
+            "username": "Meto",
+            "rating": 3,
+            "comment": "asdfadf",
+            "created_at": "2025-05-21T18:08:00.020415",
+            "updated_at": "2025-05-21T18:08:00.020415"
+        },
+        {
+            "id": 23,
+            "book_id": "154",
+            "user_id": 7,
+            "username": "Meto",
+            "rating": 3,
+            "comment": "dfhjjhd",
+            "created_at": "2025-05-21T20:55:06.476395",
+            "updated_at": "2025-05-21T20:55:06.476395"
+        }
+    ]
+}
